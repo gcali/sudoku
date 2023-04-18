@@ -103,10 +103,10 @@ $size: 2.4em;
     box-sizing: border-box;
     border: 1px solid grey;
     &.strong-bottom {
-        border-bottom: 1px solid black;
+        border-bottom: 2px solid black;
     }
     &.strong-right {
-        border-right: 1px solid black;
+        border-right: 2px solid black;
     }
 }
 </style>
