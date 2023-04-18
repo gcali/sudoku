@@ -3,6 +3,9 @@
         display: none !important;
     }
 }
+.unselectable {
+    user-select: none;
+}
 .clickable {
     cursor: pointer;
     user-select: none;
