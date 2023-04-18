@@ -37,6 +37,12 @@ export default Vue.extend({
             if (this.coordinates.col % 3 === 2 && this.coordinates.col < 8) {
                 r.push("strong-right");
             }
+            if (this.coordinates.row % 3 === 0 && this.coordinates.row > 0) {
+                r.push("strong-top");
+            }
+            if (this.coordinates.col % 3 === 0 && this.coordinates.col > 0) {
+                r.push("strong-left");
+            }
             return r;
         },
         topHints(): Hint[] {
@@ -103,10 +109,16 @@ $size: 2.4em;
     box-sizing: border-box;
     border: 1px solid grey;
     &.strong-bottom {
-        border-bottom: 2px solid black;
+        border-bottom: 1px solid black;
     }
     &.strong-right {
-        border-right: 2px solid black;
+        border-right: 1px solid black;
+    }
+    &.strong-top {
+        border-top: 1px solid black;
+    }
+    &.strong-left {
+        border-left: 1px solid black;
     }
 }
 </style>
