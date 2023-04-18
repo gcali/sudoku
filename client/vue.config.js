@@ -8,6 +8,11 @@ module.exports = {
         .loader('pug-plain-loader')
         .end();
     },
+    pwa: {
+        workboxOptions: {
+            skipWaiting: true
+        }
+    },
     css: {
         loaderOptions: {
             sass: {
