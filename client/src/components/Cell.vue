@@ -1,10 +1,10 @@
 <template lang="pug">
 .cell.unselectable(:class="[...classes, {clickable: !fixed, selected: selected}]")
     .hints.top
-        .hint(v-for="hint in topHints" :key="hint" :class="{hidden: !hint.enabled}") {{ hint.value }}
-    .core(v-html="visualLabel" :class="{fixed: fixed}")
+        .hint(v-for="hint in topHints" :key="id + hint.value" :class="{hidden: !hint.enabled}") {{ hint.value }}
+    .core(v-html="visualLabel" :class="{fixed: fixed, wrong: wrong}")
     .hints.bottom
-        .hint(v-for="hint in bottomHints" :key="hint" :class="{hidden: !hint.enabled}") {{ hint.value }}
+        .hint(v-for="hint in bottomHints" :key="id + hint.value" :class="{hidden: !hint.enabled}") {{ hint.value }}
 </template>
 
 <script lang="ts">
@@ -23,7 +23,13 @@ export default Vue.extend({
         hints: Array as PropType<number[]>,
         coordinates: Object as PropType<{row: number, col: number}>,
         fixed: Boolean,
-        selected: Boolean
+        selected: Boolean,
+        wrong: Boolean
+    },
+    data() {
+        return {
+            id: (crypto as any).randomUUID()
+        };
     },
     computed: {
         visualLabel(): string {
@@ -95,6 +101,9 @@ $size: 2.4em;
         font-size: 16px;
         &.fixed {
             font-weight: bold;
+        }
+        &.wrong {
+            color: red;
         }
     }
     &.selected {

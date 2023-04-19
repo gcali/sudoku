@@ -1,5 +1,6 @@
 <template lang="pug">
 .home
+    button(@click="check") Check
     .grid
         .row(v-for="(row, index) in rows" :key="index")
             Cell(
@@ -10,6 +11,7 @@
                 :label="cell.label"
                 :fixed="cell.fixed"
                 :selected="cell === editing"
+                :wrong="cell.wrong"
                 @click.native="clickCell(cell)"
             )
     .cell-editor(v-if="editing")
@@ -35,14 +37,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Cell from '../components/Cell.vue'
-
-type Coordinate = { row: number; col: number; }
-type CellData = {
-    coordinates: Coordinate;
-    label: number | null;
-    hints: number[];
-    fixed: boolean;
-}
+import { CellData, Coordinate, findWrongCells } from '../services/sudoku'
 
 type State = {
 puzzle: string, cellData: CellData[]
@@ -83,7 +78,8 @@ const storedToCellData = (stored: string): CellData[] => {
             coordinates,
             hints: [],
             label: e === "-" ? null : parseInt(e, 10),
-            fixed: e !== "-"
+            fixed: e !== "-",
+            wrong: false
         };
     })
 }
@@ -109,6 +105,14 @@ export default Vue.extend({
         }
     },
     methods: {
+        check() {
+            const serialize = (cs: Coordinate) => `${cs.col}_${cs.row}`;
+            const wrongCells = new Set<string>(findWrongCells(this.cells).map(serialize));
+            this.cells.forEach(cell => {
+                cell.wrong = wrongCells.has(serialize(cell.coordinates));
+            })
+            save(this.state);
+        },
         clickCell(cell: CellData) {
             if (cell.fixed) {
                 return;
