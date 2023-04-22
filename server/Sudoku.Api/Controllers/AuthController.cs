@@ -34,7 +34,7 @@ namespace Sudoku.Api.Controllers
         {
             if (env.EnvironmentName == "Development" && login.Password == "pwd")
             {
-                login.Password = "secret-password";
+                login.Password = "sudoku-secret-password";
             }
             var userId = await _authService.Check(login.User, login.Password);
             if (userId != null)

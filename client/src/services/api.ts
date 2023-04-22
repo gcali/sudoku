@@ -69,6 +69,20 @@ const fetchWrapper = async (action: string, type: "GET" | "POST" | "PUT" | "DELE
 };
 
 export const api = {
+    async login(user: string, password: string): Promise<string | null> {
+        const res = await fetchWrapper("auth/login", "POST", {body: {
+            user,
+            password
+        }});
+        if (res.ok) {
+            return user;
+        }
+        return null;
+    },
+    async logout(): Promise<boolean> {
+        const res = await fetchWrapper("auth/logout", "POST")
+        return res.ok;
+    }
 }
 
 function wrapFile(file: File) {

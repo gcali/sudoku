@@ -1,6 +1,6 @@
 <template lang="pug">
 .home
-    button(@click="check") Check
+    button(@click="check" v-if="!won") Check
     .grid
         .row(v-for="(row, index) in rows" :key="index")
             Cell(
@@ -12,6 +12,7 @@
                 :fixed="cell.fixed"
                 :selected="cell === editing"
                 :wrong="cell.wrong"
+                :won="won"
                 @click.native="clickCell(cell)"
             )
     .cell-editor(v-if="editing")
@@ -37,18 +38,65 @@
 <script lang="ts">
 import Vue from 'vue'
 import Cell from '../components/Cell.vue'
-import { CellData, Coordinate, findWrongCells } from '../services/sudoku'
+import { CellData, Coordinate, findWrongCells, isFilled, isWon } from '../services/sudoku'
 
 type State = {
-puzzle: string, cellData: CellData[]
+puzzle: string, 
+difficulty: string,
+cellData: CellData[]
+}
+
+type PackedState = {
+    puzzle: string;
+    difficulty: string;
+    cellData: string
+}
+
+const pack = (state: State): PackedState => {
+    return {
+        puzzle: state.puzzle,
+        difficulty: state.difficulty,
+        cellData: state.cellData.map(cell => ({
+            l: cell.label || 0,
+            h: cell.hints,
+            f: cell.fixed && 1 || 0,
+            w: cell.wrong && 2 || 0
+        })).map(e => `${e.l}_${e.h.join("")}_${e.f | e.w}`).join("|")
+    }
+}
+
+const unpack = (state: PackedState): State => {
+        const cellData = state.cellData.split("|").map((token, index) => {
+            const [l,h,rawFlags] = token.split("_");
+            const flags = parseInt(rawFlags, 10);
+            const fixed = Boolean(flags & 1);
+            const wrong = Boolean(flags & 2);
+            const label = parseInt(l, 10) || null;
+            const hints = h.split("").map(e => parseInt(e, 10));
+            return {
+                label,
+                fixed,
+                wrong,
+                hints,
+                coordinates: indexToCoordinates(index)
+            }
+        });
+
+    return {
+        puzzle: state.puzzle,
+        difficulty: state.difficulty,
+        cellData
+    };
 }
 
 const serializeState = (state: State): string => {
-    return JSON.stringify(state);
+    const packed = pack(state);
+    return JSON.stringify(packed);
 }
 
-const deserializeState = (state: string): State  => {
-    return JSON.parse(state);
+const deserializeState = (state: string): State | null  => {
+    const packed = JSON.parse(state);
+    return unpack(packed);
 }
 
 const loadIfPresent = (): State | null => {
@@ -66,6 +114,12 @@ const save = (state: State) => {
 
 const coordinatesToIndex = (c: Coordinate): number => {
     return c.row * 9 + c.col;
+}
+
+const indexToCoordinates = (index: number): Coordinate => {
+    const row = Math.floor(index / 9);
+    const col = index % 9;
+    return { row, col };
 }
 
 const storedToCellData = (stored: string): CellData[] => {
@@ -94,7 +148,8 @@ export default Vue.extend({
         return {
             puzzle:basicPuzzle,
             cells: storedToCellData(basicPuzzle),
-            editing: null as CellData | null
+            editing: null as CellData | null,
+            won: false
         }
     },
     mounted() {
@@ -102,19 +157,24 @@ export default Vue.extend({
         if (saved) {
             this.puzzle = saved.puzzle;
             this.cells = saved.cellData;
+            this.won = isWon(this.cells);
         }
     },
     methods: {
         check() {
             const serialize = (cs: Coordinate) => `${cs.col}_${cs.row}`;
             const wrongCells = new Set<string>(findWrongCells(this.cells).map(serialize));
-            this.cells.forEach(cell => {
-                cell.wrong = wrongCells.has(serialize(cell.coordinates));
-            })
+            if (wrongCells.size === 0 && isFilled(this.cells)) {
+                this.won = true;
+            } else {
+                this.cells.forEach(cell => {
+                    cell.wrong = wrongCells.has(serialize(cell.coordinates));
+                })
+            }
             save(this.state);
         },
         clickCell(cell: CellData) {
-            if (cell.fixed) {
+            if (cell.fixed || this.won) {
                 return;
             }
             if (this.editing === cell) {
@@ -129,6 +189,12 @@ export default Vue.extend({
                     this.editing.label = null;
                 } else {
                     this.editing.label = value;
+                    if (isFilled(this.cells)) {
+                        this.won = isWon(this.cells);
+                        if (this.won) {
+                            this.editing = null;
+                        }
+                    }
                 }
             }
             save(this.state);
@@ -149,7 +215,8 @@ export default Vue.extend({
         state(): State {
             return {
                 puzzle: this.puzzle,
-                cellData: this.cells
+                cellData: this.cells,
+                difficulty: "easy"
             };
         },
         rows(): CellData[][] {

@@ -2,7 +2,7 @@
 #app
   Navbar#nav
   #request-loading(v-if="loading") Loading
-  router-view
+  router-view#root
 </template>
 
 <script lang="ts">
@@ -32,6 +32,12 @@ export default Vue.extend({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
+}
+
+#root {
+  font-size: 20px;
+
 }
 
 $navbar-height: 2.5em;

@@ -7,6 +7,13 @@ export type CellData = {
     wrong: boolean;
 }
 
+export const isWon = (cellData: CellData[]): boolean => {
+    return isFilled(cellData) && findWrongCells(cellData).length === 0;
+}
+
+export const isFilled = (cellData: CellData[]): boolean => {
+    return cellData.every(e => e.label !== null);
+}
 
 export const findWrongCells = (cellData: CellData[]): Coordinate[] => {
     const getColumn = (column: number): CellData[] => {

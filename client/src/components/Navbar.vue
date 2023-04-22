@@ -1,8 +1,11 @@
 <template lang="pug">
 .navbar(ref="navbar")
     .title Sudoku
-    .links(v-if="loggedIn")
+    .links
         //- router-link(:to='{name: "create"}') Create
+        .profile
+          img.clickable(@click="goToProfile" src="../assets/user.png" v-if="loggedIn")
+          router-link(:to='{name: "login"}' v-else) Login
 </template>
 
 <script lang="ts">
@@ -12,6 +15,11 @@ import Vue from 'vue'
 export default Vue.extend({
   mounted() {
     registerNavbar(this.$refs['navbar'] as HTMLElement);
+  },
+  methods: {
+    goToProfile() {
+      this.$router.push({name: "profile"});
+    }
   },
   computed: {
     loggedIn() {
@@ -52,6 +60,7 @@ export default Vue.extend({
     align-items: center;
     height: 100%;
     a {
+      font-size: 1.3em;
       font-weight: bold;
       color: $light;
       margin-right: 1em;
@@ -59,6 +68,14 @@ export default Vue.extend({
       &.router-link-exact-active {
         color: $ultralight;
       }
+    }
+  }
+  .profile {
+      max-height: 100%;
+      display: flex;
+    img {
+      object-fit: contain;
+      padding: 0.2em 0em;
     }
   }
 }
