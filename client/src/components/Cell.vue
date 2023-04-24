@@ -77,14 +77,14 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-$size: 2.4em;
+$size: 1.8em;
 .cell {
     .hints {
         position: absolute;
         display: flex;
         justify-content: space-evenly;
         width: 100%;
-        font-size: 11px;
+        font-size: 9px;
         &.top {
             top: 0;
             left: 0;
@@ -99,7 +99,7 @@ $size: 2.4em;
     }
     position: relative;
     .core {
-        font-size: 16px;
+        font-size: 14px;
         &.fixed {
             font-weight: bold;
         }

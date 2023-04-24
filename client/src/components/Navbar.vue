@@ -2,7 +2,7 @@
 .navbar(ref="navbar")
     .title Sudoku
     .links
-        //- router-link(:to='{name: "create"}') Create
+        router-link(:to='{name: "home"}') Home
         .profile
           img.clickable(@click="goToProfile" src="../assets/user.png" v-if="loggedIn")
           router-link(:to='{name: "login"}' v-else) Login

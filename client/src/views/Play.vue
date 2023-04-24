@@ -1,6 +1,5 @@
 <template lang="pug">
 .play
-    router-link(:to='{name: "home"}') Home
     button.check(@click="check" v-if="!won") Check
     Grid(
         :cells="cells"
@@ -145,6 +144,8 @@ export default Vue.extend({
 
 .cell-editor {
     margin-top: 1em;
+
+    font-size: 16px;
 
     .value-editor {
         display: flex;
