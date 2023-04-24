@@ -1,3 +1,6 @@
+import { getSudoku } from "sudoku-gen";
+import { Difficulty } from "sudoku-gen/dist/types/difficulty.type";
+
 export type Coordinate = { row: number; col: number; }
 export type CellData = {
     coordinates: Coordinate;
@@ -6,6 +9,77 @@ export type CellData = {
     fixed: boolean;
     wrong: boolean;
 }
+
+export type State = {
+    puzzle: string,
+    difficulty: string,
+    cellData: CellData[]
+}
+
+export type SudokuState = "empty" | "won" | "started";
+
+export type SudokuSummary = {
+    id: string;
+    difficulty: string;
+    creationDate: Date;
+    updateDate: Date;
+    state: SudokuState;
+}
+
+export type FullSudoku = {
+    summary: SudokuSummary;
+    state: State;
+}
+
+const puzzleToCellData = (puzzle: string): CellData[] => {
+    return puzzle.split("").map((e, index) => {
+        const coordinates = {
+            row: Math.floor(index / 9),
+            col: index % 9
+        };
+        return {
+            coordinates,
+            hints: [],
+            label: e === "-" ? null : parseInt(e, 10),
+            fixed: e !== "-",
+            wrong: false
+        };
+    })
+}
+
+
+export const generateSudoku = (difficulty: Difficulty): FullSudoku => {
+    const id = btoa((crypto as any).randomUUID());
+    const puzzle = getSudoku(difficulty);
+    const date = new Date();
+    return {
+        summary: {
+            creationDate: date,
+            difficulty,
+            id,
+            updateDate: date,
+            state: "empty"
+        },
+        state: {
+            cellData: puzzleToCellData(puzzle.puzzle),
+            difficulty,
+            puzzle: puzzle.puzzle
+        }
+    }
+}
+
+
+export const coordinatesToIndex = (c: Coordinate): number => {
+    return c.row * 9 + c.col;
+}
+
+export const indexToCoordinates = (index: number): Coordinate => {
+    const row = Math.floor(index / 9);
+    const col = index % 9;
+    return { row, col };
+}
+
+
 
 export const isWon = (cellData: CellData[]): boolean => {
     return isFilled(cellData) && findWrongCells(cellData).length === 0;

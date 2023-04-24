@@ -8,5 +8,15 @@ export const formatDate = (date: Date): string => {
         day = "0" + day;
     const today = now.getFullYear() + '-' + month + '-' + day;
     return today;
+}
 
+const padLeft = (s: number): string => {
+    if (s < 10) {
+        return "0" + s;
+    }
+    return s.toString();
+}
+
+export const formatTime = (date: Date): string => {
+    return `${padLeft(date.getHours())}:${padLeft(date.getMinutes())}:${padLeft(date.getSeconds())}`;
 }

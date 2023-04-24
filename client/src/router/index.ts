@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import Play from '../views/Play.vue'
 import Login from "../views/Login.vue"
 import Profile from "../views/Profile.vue"
     
@@ -13,6 +14,12 @@ const routes: Array<RouteConfig> = [
     alias: ["/home"],
     name: 'home',
     component: Home
+  },
+  {
+    path: "/play/:puzzleId",
+    name: "play",
+    component: Play,
+    props: true
   },
   {
     path: '/login',

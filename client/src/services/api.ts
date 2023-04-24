@@ -32,8 +32,13 @@ export const withLoading = async (inner: () => Promise<void>): Promise<void> => 
 const fetchWrapper = async (action: string, type: "GET" | "POST" | "PUT" | "DELETE", data?: {
     body?: unknown,
     params?: Params
+}, options?: {
+    skipLoading: boolean,
+    skipRedirect: boolean
 }): Promise<Response> => {
-    store.loading++;
+    if (options?.skipLoading !== true) {
+        store.loading++;
+    }
     let hasRedirected = false;
     try {
         const params = data && data.params;
@@ -50,7 +55,7 @@ const fetchWrapper = async (action: string, type: "GET" | "POST" | "PUT" | "DELE
             credentials: 'include',
             headers
         });
-        if (!result.ok && result.status === 401) {
+        if (!options?.skipRedirect !== true && result.ok && result.status === 401) {
             store.user = undefined;
             hasRedirected = true;
             router.push({ name: "login" });
@@ -58,13 +63,15 @@ const fetchWrapper = async (action: string, type: "GET" | "POST" | "PUT" | "DELE
         return result;
     }
     catch (e) {
-        if (!hasRedirected && router.currentRoute.name !== "login") {
+        if (options?.skipRedirect !== true && !hasRedirected && router.currentRoute.name !== "login") {
             console.log(router.currentRoute);
             router.push({ name: "login" });
         }
         throw e;
     } finally {
-        store.loading--;
+        if (options?.skipLoading !== true) {
+            store.loading--;
+        }
     }
 };
 
